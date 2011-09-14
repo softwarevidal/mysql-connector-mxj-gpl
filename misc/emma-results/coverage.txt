@@ -1,0 +1,24 @@
+[EMMA v2.0.5312 report, generated Tue May 16 15:34:38 CDT 2006]
+-------------------------------------------------------------------------------
+OVERALL COVERAGE SUMMARY:
+
+[class, %]	[method, %]	[block, %]	[line, %]	[name]
+100% (67/67)	99%  (378/382)	95%  (5537/5846)	97%  (1212.3/1256)	all classes
+
+OVERALL STATS SUMMARY:
+
+total packages:	5
+total classes:	67
+total methods:	382
+total executable files:	34
+total executable lines:	1256
+
+COVERAGE BREAKDOWN BY PACKAGE:
+
+[class, %]	[method, %]	[block, %]	[line, %]	[name]
+100% (4/4)	100% (17/17)	81%  (189/234)	87%  (43.7/50)	com.mysql.management.driverlaunched
+100% (9/9)	99%  (74/75)	93%  (1781/1924)	94%  (356.2/378)	com.mysql.management
+100% (45/45)	99%  (236/239)	96%  (2640/2758)	98%  (612.5/628)	com.mysql.management.util
+100% (6/6)	100% (41/41)	100% (803/806)	100% (165.9/166)	com.mysql.management.jmx
+100% (3/3)	100% (10/10)	100% (124/124)	100% (34/34)	com.mysql.management.jmx.jboss
+-------------------------------------------------------------------------------

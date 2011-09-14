@@ -1,0 +1,420 @@
+<!--
+ Copyright (C) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License version 2 as 
+ published by the Free Software Foundation.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+
+<!--
+ author Eric Herman <eric@mysql.com> 
+ version $Id: build.xml,v 1.22 2005/10/25 18:00:57 eherman Exp $
+-->
+<project name="MySQL JMX" basedir="." default="usage">
+	<description>A Java Wrapper for MySQL</description>
+
+	<property name="mxj-version" value="5-0-11" />
+	<property name="gpl-mysqld-version" value="5-1-40" />
+	<property name="commercial-mysqld-version" value="5-1-40" />
+
+	<property name="src" location="src" />
+	<property name="misc" location="misc" />
+
+	<property name="tmp" location="${java.io.tmpdir}/cmxj-build" />
+	<property name="build" location="${tmp}/build" />
+	<property name="stage-root" location="${tmp}/stage" />
+	<property name="dist" location="${tmp}/dist" />
+
+	<property name="emma.dir" value="./lib-coverage" />
+	<property name="emma.coverage.dir" location="${misc}/emma-results" />
+	<property name="junit.results" location="${misc}/junit-results" />
+	<property name="no.aspectj" value="true" />
+
+	<path id="project.build.classpath">
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="lib-nodist">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="usage">
+		<echo>
+Targets:
+  dist - for a standard distribution set
+              dist will output to ${tmp}
+  
+         set "no.test" to true to avoid inclusion of the tests
+              in the "mysql-connector-mxj-gpl-${mxj-version}.jar"
+         set "source.only" to true to avoid inclusion of:
+              mysql-connector-mxj-gpl-${mxj-version}.jar
+         set "no.aspectj" to false to building trace-logging
+		
+  clean - to removes the ${tmp} directory
+
+  usage - prints this message
+
+  usage-html-test-agent - (html test agent is not built by default)
+		
+The CLASSPATH must satisfy the following external dependencies:
+  * MySQL Connector/J JDBC driver:
+       http://dev.mysql.com/downloads/connector/j/5.0.html
+  * JUnit (if tests included)
+       http://www.junit.org
+  * a JMX 1.2 implementation (as of Java 5, JMX is included)
+       a separate download is available for Java 1.4
+          http://java.sun.com/products/JavaManagement/
+		</echo>
+	</target>
+
+	<target name="usage-html-test-agent">
+		<echo>
+The html test agent is not be built by default.
+ It may be built if the SUN JMX reference
+ implementation is available:
+	 http://java.sun.com/products/JavaManagement/
+ * set "sunri.present" from the ant command-line
+     ant -Dsunri.present=true dist
+
+ The "MysqldTestAgentSunHtmlAdaptor" references the
+ "com.sun.jdmk.comm.HtmlAdaptorServer" which is not
+ included in Java 5.
+ 
+ This "test agent" is a stand-alone JMX agent with
+ exactly two beans:
+   1) a MysqldDynamicMBean
+   2) a Broswer Interface for management
+
+The html test agent may be useful for demo or test.
+		</echo>
+	</target>
+
+
+	<target name="clean">
+		<echo> deleting ${tmp} </echo>
+		<delete dir="${tmp}" />
+	</target>
+
+	<target name="dist">
+		<antcall target="clean" />
+		<mkdir dir="${dist}" />
+		<antcall target="-dist-gpl" />
+	</target>
+
+	<target name="dist-all">
+		<property name="status" value="false" />
+		<antcall target="dist" />
+		<antcall target="-dist-commerical-src" />
+		<antcall target="-dist-commerical-bin" />
+	</target>
+
+	<target name="test" unless="no.test">
+		<antcall target="dist" />
+		<mkdir dir="${junit.results}" />
+		<path id="test.classpath">
+			<path refid="project.build.classpath" />
+			<pathelement location="${stage-cmxj}/${fullProdName}.jar" />
+		</path>
+		<!-- <echo>Using CLASSPATH=${test.classpath}</echo> -->
+		<junit printsummary="true" haltonfailure="false">
+			<classpath refid="test.classpath" />
+			<formatter type="plain" />
+			<formatter type="xml" />
+			<test name="com.mysql.management.AllTestsSuite" 
+				todir="${junit.results}" />
+		</junit>
+	</target>
+
+	<!--    internal targets    -->
+
+	<target name="-tiny-clean">
+		<delete dir="${stage-root}" />
+		<delete dir="${build}" />
+	</target>
+
+	<target name="-dist-gpl">
+		<property name="mysqld-version" value="${gpl-mysqld-version}" />
+		<property name="resources" location="resources" />
+		<property name="fullProdName" 
+			value="mysql-connector-mxj-gpl-${mxj-version}" />
+		<property name="stage-cmxj" location="${stage-root}/${fullProdName}" />
+        <antcall target="-tiny-clean" />
+		<antcall target="-stage-gpl-dist" />
+		<antcall target="-makePackages">
+		</antcall>
+	</target>
+
+	<target name="-dist-commerical-src">
+		<property name="mysqld-version" value="${commercial-mysqld-version}" />
+		<property name="resources" location="commercial" />
+        <antcall target="-tiny-clean" />
+		<property name="fullProdName" 
+			value="mysql-connector-mxj-commercial-src-${mxj-version}" />
+		<property name="stage-cmxj" location="${stage-root}/${fullProdName}" />
+        <antcall target="-tiny-clean" />
+		<antcall target="-stage-commercial-src" />
+
+		<antcall target="-makePackages">
+		</antcall>
+	</target>
+
+	<target name="-dist-commerical-bin">
+		<property name="mysqld-version" value="${commercial-mysqld-version}" />
+		<property name="resources" location="commercial" />
+		<property name="fullProdName" 
+			value="mysql-connector-mxj-commercial-bin-${mxj-version}" />
+		<property name="stage-cmxj" location="${stage-root}/${fullProdName}" />
+        <antcall target="-tiny-clean" />
+		<antcall target="-stage-commercial-bin" />
+		<mkdir dir="${dist}" />
+		<antcall target="-makePackages">
+		</antcall>
+	</target>
+
+	<target name="-compile" unless="source.only">
+		<mkdir dir="${build}" />
+		<echo> compiling MysqldResource class and supporting classes </echo>
+		<javac srcdir="${src}" destdir="${build}" debug="true" verbose="false" 
+			source="1.4" target="1.4">
+			<classpath refid="project.build.classpath" />
+			<exclude name="**/*Test*" />
+			<exclude name="*.txt" />
+		</javac>
+
+		<antcall target="-compile-tests" />
+		<antcall target="-skip-compile-tests" />
+
+		<antcall target="-instrument-logging" />
+		<antcall target="-skip-instrument-logging" />
+
+		<mkdir dir="${stage-cmxj}" />
+		<jar destfile="${stage-cmxj}/${fullProdName}.jar">
+			<fileset dir="${build}" />
+			<fileset dir="${resources}">
+				<include name="kill.exe" />
+			</fileset>
+		</jar>
+		<jar destfile="${stage-cmxj}/${fullProdName}-db-files.jar">
+			<fileset dir="${resources}">
+				<include name="${mysqld-version}/**" />
+				<include name="*.properties" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<target name="-skip-instrument-logging" if="no.aspectj">
+		<echo> skip instrumenting classes for logging</echo>
+	</target>
+
+	<target name="-instrument-logging" unless="no.aspectj">
+		<echo> instrumenting classes for logging</echo>
+		<!-- <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties"/> -->
+		<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+			<classpath>
+				<pathelement location="lib/aspectjtools.jar" />
+				<pathelement location="lib/aspectjrt.jar" />
+			</classpath>
+		</taskdef>
+
+		<iajc destDir="${build}">
+			<sourceroots>
+				<pathelement location="${src}" />
+			</sourceroots>
+			<classpath refid="project.build.classpath" />
+			<classpath>
+				<pathelement location="lib/aspectjtools.jar" />
+			</classpath>
+		</iajc>
+	</target>
+
+	<target name="-skip-compile-tests" if="no.test">
+		<echo> skipping compiling of Unit Tests and supporting classes </echo>
+	</target>
+
+	<target name="-compile-tests" unless="no.test">
+		<echo> compiling Unit Tests and supporting classes </echo>
+	    <copy file="${src}/support-issue-8601-help-output.txt" 
+	    	  todir="${build}" />
+		<javac srcdir="${src}" excludes="com/mysql/management/sunri/**" 
+			destdir="${build}" debug="true" verbose="false" 
+			source="1.4" target="1.4">
+			<classpath refid="project.build.classpath" />
+		</javac>
+		<available classname="com.sun.jdmk.comm.HtmlAdaptorServer" 
+			classpath="project.build.classpath" property="sunri.present" />
+		<antcall target="-compile-sunri-agent" />
+		<antcall target="-skip-compile-sunri-agent" />
+	</target>
+
+	<target name="-skip-compile-sunri-agent" unless="sunri.present">
+		<echo> skippping compiling simple JMX Agent (requires Sun reference implementation)</echo>
+	</target>
+
+	<target name="-compile-sunri-agent" if="sunri.present">
+		<echo> compiling simple JMX Agent (http and Mysqld beans only)</echo>
+		<javac srcdir="${src}" destdir="${build}" debug="true" verbose="false" 
+			source="1.4" target="1.4">
+			<classpath refid="project.build.classpath" />
+		</javac>
+	</target>
+
+	<target name="-makePackages">
+		<delete file="${dist}/${fullProdName}.tar.gz" />
+
+		<tar destfile="${dist}/${fullProdName}.tar.gz" compression="gzip" 
+			longfile="gnu">
+			<tarfileset dir="${stage-root}">
+				<patternset>
+					<exclude name="**/*.nb*" />
+					<exclude name="**/*.bak" />
+					<exclude name="**/*.*~" />
+					<exclude name="**/.*" />
+				</patternset>
+			</tarfileset>
+		</tar>
+		<checksum file="${dist}/${fullProdName}.tar.gz" forceOverwrite="yes" />
+
+		<delete file="${dist}/${fullProdName}.zip" />
+
+		<jar jarfile="${dist}/${fullProdName}.zip">
+			<fileset dir="${stage-root}">
+				<patternset>
+					<exclude name="**/*.nb*" />
+					<exclude name="**/*.bak" />
+					<exclude name="**/*.*~" />
+					<exclude name="**/.*" />
+				</patternset>
+			</fileset>
+		</jar>
+		<checksum file="${dist}/${fullProdName}.zip" forceOverwrite="yes" />
+	</target>
+
+	<target name="-stage-src-common">
+		<mkdir dir="${stage-cmxj}" />
+		<copy todir="${stage-cmxj}/src">
+			<fileset dir="${src}" />
+		</copy>
+		<copy todir="${stage-cmxj}/resources">
+			<fileset dir="${resources}">
+				<include name="${mysqld-version}/**" />
+				<include name="kill.exe" />
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+		<copy file="build.xml" todir="${stage-cmxj}" />
+		<copy file="build-jcoverage.xml" todir="${stage-cmxj}" />
+		<copy file="lib-nodist/readme.txt" todir="${stage-cmxj}/lib-nodist" />
+		<copy todir="${stage-cmxj}/misc">
+			<fileset dir="${misc}" />
+		</copy>
+
+	</target>
+
+	<target name="-stage-common">
+		<copy file="index.jsp" todir="${stage-cmxj}" />
+		<copy file="README.1st" todir="${stage-cmxj}" />
+		<copy file="CHANGES" todir="${stage-cmxj}" />
+		<mkdir dir="${stage-cmxj}/lib" />
+		<copy todir="${stage-cmxj}/lib">
+			<fileset dir="lib" />
+		</copy>
+	</target>
+
+	<target name="-stage-commercial-common">
+		<antcall target="-stage-common" />
+		<copy file="${misc}/commercialLicense.txt" 
+			tofile="${stage-cmxj}/commercialLicense.txt" />
+		<loadfile property="commercialLicenseText" 
+			srcFile="misc/commercialLicense.txt" />
+		<replaceregexp match="Copyright.*1307.[^replaceregexp]*USA" 
+			replace="${commercialLicenseText}" flags="s">
+			<fileset dir="${stage-cmxj}" includes="**/*.java **/*.xml" />
+		</replaceregexp>
+	</target>
+
+	<target name="-stage-gpl-dist">
+		<antcall target="-stage-src-common" />
+		<antcall target="-stage-common" />
+		<copy file="${misc}/gpl2.txt" tofile="${stage-cmxj}/COPYING" />
+		<antcall target="-compile" />
+	</target>
+
+	<target name="-stage-commercial-src">
+		<antcall target="-stage-src-common" />
+		<antcall target="-stage-commercial-common" />
+	</target>
+
+	<target name="-stage-commercial-bin">
+		<antcall target="-stage-commercial-common" />
+		<antcall target="-compile" />
+	</target>
+
+	<target name="-emma-instrument" description="runs the examples">
+		<mkdir dir="${build}" />
+		<property name="no.aspectj" value="true" />
+		<antcall target="dist" />
+
+		<path id="emma.lib">
+			<pathelement location="${emma.dir}/emma.jar" />
+			<pathelement location="${emma.dir}/emma_ant.jar" />
+		</path>
+		<taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+		<emma enabled="true">
+			<instr instrpath="${build}" destdir="${build}" metadatafile="${emma.coverage.dir}/metadata.emma" merge="true" mode="overwrite">
+				<filter excludes="*Test*" />
+			</instr>
+		</emma>
+	</target>
+
+	<target name="-test-emma" depends="-emma-instrument">
+		<mkdir dir="${junit.results}" />
+		<path id="test.classpath">
+			<path refid="project.build.classpath" />
+			<pathelement location="${build}" />
+			<pathelement location="${stage-cmxj}/${fullProdName}.jar" />
+			<pathelement location="${emma.dir}/emma.jar" />
+			<pathelement location="${emma.dir}/emma_ant.jar" />
+		</path>
+		<junit showoutput="true" printsummary="withOutAndErr" haltonfailure="false" fork="on">
+			<jvmarg value="-Demma.coverage.out.file=${emma.coverage.dir}/coverage.emma" />
+			<jvmarg value="-Demma.coverage.out.merge=true" />
+			<classpath refid="test.classpath" />
+			<formatter type="plain" />
+
+			<test name="com.mysql.management.AllTestsSuite" />
+
+			<batchtest fork="yes" todir="${junit.results}">
+				<fileset dir="${build}">
+					<include name="**/AllTestsSuite.java" />
+				</fileset>
+			</batchtest>
+
+		</junit>
+	</target>
+
+	<target name="test-emma-report" depends="-test-emma">
+		<emma enabled="true">
+			<report sourcepath="${src}">
+				<fileset dir="${emma.coverage.dir}">
+					<include name="*.emma" />
+				</fileset>
+
+				<txt outfile="${emma.coverage.dir}/coverage.txt" />
+				<html outfile="${emma.coverage.dir}/coverage.html" />
+			</report>
+		</emma>
+	</target>
+
+</project>
+

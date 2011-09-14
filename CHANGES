@@ -1,0 +1,383 @@
+# Changelog
+# $Id: CHANGES,v 1.14 2005/10/25 19:11:16 eherman Exp $
+
+5-0-11
+
+2009-11-13 - bumped testKillDelayDefault from 10 to 30 seconds
+             some of our testing platforms are slow, thus bogus test failures
+           - added Windows_Server_2008-x86=Win-x86 to platform-map.properties
+
+2009-11-12 - updated copyright text in source files
+           - removed duplicate LICENSE file
+           - updated build.xml to use only one license file
+           - updated "commercialLicense.txt"
+           - add Sun amd64, sparcv9 to platform-map.properties
+           - clarify MissingResourceException message
+
+2009-11-11 - bump version number
+           - add OS X 64 to platform-map.properties
+           - remove junit.jar
+
+2009-11-10 - swapped out gpl binaries for v5-1-40
+           - swapped out commercial binaries for v5-1-40
+           - made "share-dir.jar" configurable via "connector-mxj.properties"
+           - added fix for http://bugs.mysql.com/bug.php?id=48298
+           - test robustness with URLEncoding path names
+           - remove aspect-j due to license issues
+
+5-0-10
+
+2009-04-18 - swapped out gpl binaries for v5-1-33
+           - swapped out commercial binaries for v5-1-34
+           - extract mysql client binary if present.
+           - clarify that "kill-delay" system property set on command-line
+             over-rides the value set in connector-mxj.properties
+           - simplify int parsing code since type and null safety are handled
+             inside the utility class.
+           - update the copyright notice
+
+2009-01-19 - swapped out gpl binaries for v5-1-30
+           - made windows mysqld executable name configurable in
+             connector-mxj.properties:
+             key "windows-mysqld-command"
+             default "mysqld.exe"
+           - QueryUtil now explicitly uses Statement.RETURN_GENERATED_KEYS
+
+2008-08-20 - swapped out gpl binaries for v5-0-67
+           - swapped out commercial binaries for v5-0-66a
+
+2008-04-03 - added fix for http://bugs.mysql.com/bug.php?id=35804
+
+5-0-9
+
+2008-02-19 - added robustness in tests for differences in C/J
+           - set the kill-delay for tests to default to 10 seconds
+           - added robustness in tests for differences in 'java' return codes
+
+2008-02-18 - remove the out-of-date build targets for docs
+           - updated build.xml to reflect 5.0.9 release, some code tidy
+           - updated build.xml "usage" to reflect jmx comes with Java 1.5 
+           - package (.tar.gz) and lib (.jar) and directory names now reflect 
+             the full package name (version & gpl/commercial-bin/commercial-src)
+           - updated README.1st, removed obsolete README.txt & index.html
+
+2008-02-17 - swapped out gpl binaries for v5-0-51a
+           - swapped out commercial binaries for v5-0-54
+           - moved support-issue-8601-help-output.txt into src directory
+
+2008-02-16 - make name "kill.exe" a property; move name to properties file
+           - move KILL_DELAY constant into properties file; default is 5 min.
+           - update code formatting preferences and format code
+
+2007-09-24 - ConnectorMXJUrlTestExample and ConnectorMXJObjectTestExample port 
+             is no longer hard coded. Now uses:
+             System.getProperty("c-mxj_test_port", "3336"));
+
+5-0-8
+
+2007-08-06 - swapped out gpl binaries for v5.0.45
+           - swapped out commercial binaries for v5.0.46
+           - lib/aspectj*.jar for version 1.5.3 jars
+           - update the Connector/MXJ version to 5-0-8-beta
+
+2007-07-09 - Changed embedded doc files to point to published docs at:
+             http://dev.mysql.com/doc/refman/5.0/en/connector-mxj.html
+
+2007-07-03 - Fixed URL-style shutdown issue where undetermined running port 
+             would be interpreted as wrong and thus would throw. Now warns.
+
+2007-06-30 - added method MysqldResource.deployFiles() so that db files may be
+             extracted without started the database
+
+2007-06-25 - included URL re-conneciton optimization
+           - added TODO entries in _dev_notes.txt
+           - improved build.xml a bit. removed additional-libs
+           - added required libs to lib-nodit 
+
+2007-06-21 - added groundwork for URL re-connection optimization
+
+5-0-7-beta
+
+2007-05-27 - swapped out gpl binaries for v5.0.41
+           - swapped out commercial binaries for v5.0.42
+           - updated build.xml version in preperation for 5.0.7-beta tag
+           - performed code review/polish prior to release candidate:
+           - removed references to File.deleteOnExit, print warning instead
+           - fixed where versionString.trim() was ignored (Thanks FindBugs!)
+           - portFile now contains a new-line to be consistent with pidFile
+           - errors reading portFile now stacktrace(err) ... was System.err
+           - added main(String[]) to com/mysql/management/AllTestsSuite.java
+           - removed obsolete PatchedStandardSocketFactory java file
+           - clarified code in DefaultsMap.entrySet()
+           - removed obsolete field SimpleMysqldDynamicMBean.lastInvocation
+
+2007-05-25 - added new connection property "initialize-user" which, if set to
+             "true" will remove the default, un-passworded anonymous and "root"
+             users, and create the user/password from the connection url
+           - ConnectorMXJUrlTestExample and ConnectorMXJObjectTestExample now
+             demonstrate the initialization of user/password and creating the
+             initial database (rather than using "test")
+           - added new tests for initial-user & expanded some existing tests 
+           - added InitializeUser and QueryUtil classes to support new feature
+           - removed obsolete InitializePasswordExample 
+           - refactored duplication from tests and examples to QueryUtil
+           - removed PatchedStandardSocketFactory (fixed in Connetor/J 5.0.6)
+           - added copyright notices to some classes which were missing them
+
+2007-05-21 - added robustness around reading portfile
+
+2007-05-18 - upadted commercial license files
+           - updated internal jar file names to include version information and 
+             be more consistent with Connector/J jar naming. "connector-mxj.jar" 
+             is now "mysql-connector-mxj-${mxj-version}.jar"
+
+2007-05-14 - added null-check to deal with C/MXJ being loaded by the bootstrap 
+             classloaders with JVMs for which getClassLoader() returns null 
+             found by Sloan Childers on WinXP
+
+5-0-6-beta
+
+2007-05-04 - removed "use-default-architecture" property replaced
+           - moved "platform-map.properties" into db-files.jar
+           - updated build.xml in preperation for next beta build
+           - clarified the startup max wait numbers
+           - changed tests to shutdown mysqld prior to deleting files
+           - delete portFile on shutdown
+
+2007-05-03 - swapped out commercial binaries for v5.0.40
+           - fixed port file to always be writen to datadir
+
+2007-03-14 - added os.name-os.arch to resource directory mapping 
+             properties file.
+
+5-0-5-beta
+
+2007-03-14 - updated build.xml in prep for next release.
+
+2007-03-13 - swapped out gpl binaries for v5.0.37
+           - swapped out commercial binaries for v5.0.36
+           - found and removed dynamic linking in mysql_kill; updated solution
+           - changed connector-mxj.properties default mysql version to 5.0.37
+           - replaced Boolean.parseBoolean with JDK 1.4 compliant "valueOf"
+           - Added Patched StandardSocketFactory from Connector/J 5-0 HEAD
+           - build.xml: "usage" now slightly more verbose; some reformatting
+
+2007-03-12 - replaced windows "kill.exe" resource with re-written version 
+             specific to mysqld.
+           - SIGHUP is replaced with "MySQLShutdown<PID>" event
+           - now incoporates Reggie Bernett's SafeTerminateProcess and only
+             calls the unsafe TerminateProcess as a final last resort
+           - new windows kill.exe fixes bug where mysqld was being force 
+             terminated. Issue reported by bruno haleblian and others, see:
+             http://forums.mysql.com/read.php?39,140623,140623#msg-140623
+           - In testing so far mysqld reliably shuts down cleanly much faster
+
+2007-03-10 - changed protected constructor of SimpleMysqldDynamicMBean from 
+             taking a MysqldResource to taking a MysqldFactory, in order to lay 
+             groundwork for addressing BUG discovered by Andrew Rubinger. See:
+             http://forums.mysql.com/read.php?39,143046,143046#msg-143046
+             (Actual testign with JBoss, and filing a bug, is still required.)
+           - changed SimpleMysqldDynamicMBean to create MysqldResource on demand
+             in order to allow setting of datadir. (Rubinger bug groundwork)
+           - added getDataDir() to interface MysqldResourceI
+           - added testcase to com.mysql.management.jmx.AcceptanceTest which 
+             demonstrats that "dataDir" is a mutable MBean property. 
+           - moved MysqldFactory to main package.
+           - reformatting: Added newlines some files which did not end in them.
+
+2007-02-23 - added 5.1.15 binaries to the repository
+           - removed 5.1.14 binaries from the repository
+           - clarified the synchronization of MysqldResource methods
+           - clarified the immutability of baseDir, dataDir, pidFile, portFile
+
+2007-01-29 - removed 5.0.22 binaries from the repository
+           - added 5.1.14 binaries to repository
+           - ensured 5.1.14 compatibility 
+
+5-0-4-beta
+
+2007-01-28 - swapped out gpl binaries for v5.0.27
+           - swapped out commercial binaries for v5.0.32
+           - updated build.xml to build to handle with different gpl and 
+             commercial mysld version numbers
+           - moved mysqld binary resourced into separate jar file
+             NOTICE: CLASSPATH will now need to "connector-mxj-db-files.jar"
+           - minor test robustness improvements
+           
+2007-01-27 - moved default version string out of java class into a text editable
+             properties file (connector-mxj.properties) in the resources 
+             directory
+           - introduced property for Linux & WinXX to default to 32bit versions 
+
+2006-11-22 - fix for Bug#24004 (allow multiple calls to start server from 
+             URL connection on non-3306 port.)
+           - only populate the options map from the help text if specifically 
+             requested or in the MBean case
+           - fixed test to be tollerant of /tmp being a symlink to /foo/tmp
+
+5-0-3-beta
+
+2006-06-24 - swapped out the mysqld binaries for MySQL v5.0.22
+           - Removed "TeeOutputStream" - no longer needed.
+           - removed unused imports, formatted code, made minor edits to tests
+
+5-0-2-beta
+
+2006-05-15 - Replaced string parsing with JDBC connection attempt for 
+             determining if a mysqld is "ready for connections" 
+             NOTICE: CLASSPATH will now need to include Connector/J jar.
+           - Extended timeout for help string parsing, to avoid cases where the
+             help text was getting prematurely flushed, and thus truncated.
+           
+2006-05-11 - Added trace level logging with Aspect/J. NOTICE: CLASSPATH will now 
+             need to include "lib/aspectjrt.jar"
+
+2006-05-04 - swapped out the mysqld binaries for MySQL v5.0.21
+
+2006-04-26 - ServerLauncherSocketFactory now treats URL parameters in the form
+             of "&server.foo=null" as serverOptionMap.put("foo", null)
+
+2006-04-25 - MysqldResource now tied to dataDir as well as basedir (API CHANGE)
+           - moved PID file into datadir
+           - ServerLauncherSocketFactory.shutdown API change: now takes 2 File
+             parameters (basedir, datadir)
+           - insulated users from problems with "." in basedir
+
+2006-04-18 - Made tests more robust be deleting the /tmp/test-c.mxj directory
+             before running tests.
+           - socket is now "mysql.sock" in datadir
+           - ServerLauncherSocketFactory.shutdown now works across JVMs.
+           - ServerLauncherSocketFactory.shutdown API change: now takes File
+             parameter (basedir) instead of port.
+           - altered to be "basedir" rather than "port" oriented.
+
+2006-03-27 - ServerLauncherSocketFactory.shutdown(port) no longer throws, only 
+             reports to System.err
+
+2006-03-16 - swapped out the mysqld binaries for MySQL v5.0.19
+           - added ability to specify "mysql-version" as an url parameter
+           - extracted splitLines(String) to Str utility class
+           - extracted array and list printing to ListToString utility class
+           - reformatted code
+
+2006-01-16 - swapped out the mysqld binaries for MySQL v5.0.18
+           - "platform" directories replace spaces with underscores
+           - help parsing test reflects current help options
+
+5-0-0
+
+2005-12-09 - swapped out the mysqld binaries for MySQL v5.0.16
+
+2005-10-25 - altered examples and tests to use new Connector/J 5.0 URL syntax for
+             for launching Connector/MXJ ("jdbc:mysql:mxj://")
+           - minor refactorings for type casting and exception handling 
+
+2005-08-30 - reorganized utils into a single "Utils" collaborator
+           - ditched "ClassUtil" (merged with Str)
+           - removed HelpOptionsParser's need to reference a MysqldResource
+
+2005-08-29 - minor test tweaks
+
+1-1-6
+
+2005-08-24 - added "--console" for windows per suggestion by David Rodgers
+
+1-1-5
+
+2005-08-03 - incorporated new "kill.exe" for windows
+           - made ProcessUtil more verbose
+
+1-1-4
+
+2005-07-20 - swapped out the mysqld binaries for MySQL v4.1.13
+
+1-1-3
+
+2005-06-14 - swapped out the mysqld binaries for MySQL v4.1.12
+           - altered the way command line parameters parsed.
+           
+1-1-2
+
+2005-04-07 - swapped out the mysqld binaries for MySQL v4.1.11
+
+1-1-1
+
+2005-03-14 - swapped out the mysqld binaries for MySQL v4.1.10a
+           - added a unix-like "kill.exe" for windows with help from Kendrick Shaw
+           - fixed Win2k process "kill" bug found and reported by Jouni Stam
+           - refactored code and tests for more simplicity
+           
+1-1-0
+
+2005-02-28 - swapped out the mysqld binaries for MySQL v4.1.10
+           - added "ServerLauncherSocketFactory"
+           - updated documentation
+
+2005-02-06 - package re-org to support multiple types of control
+           - initial support for multiple versions
+
+1-0-10
+
+2005-01-15 - swapped out the mysqld binaries for MySQL v4.1.9
+
+1-0-9
+
+2004-12-19 - swapped out the mysqld binaries for MySQL v4.1.8
+
+1-0-8
+1-0-7
+
+2004-12-10 - added Mac OS X ppc resource
+
+1-0-6-gamma 
+
+2004-11-22 - added "index.jsp" as example web-app
+
+2004-11-17 - fixed bug in properties transform
+
+1-0-6-beta
+
+2004-10-28 - added "-F" option to taskkill, improved messages
+
+2004-10-26 - swapped out the mysqld binaries for MySQL v4.1.7
+
+2004-10-20 - swapped out the mysqld binaries for MySQL v4.1.6 gamma
+             regenerated "data" and "test" dirs
+
+2004-09-22 - improved testing
+
+1-0-5-alpha
+
+2004-09-19 - corrected GettingStarted.txt to use JBoss specific class
+
+1-0-4-alpha
+
+2004-09-19 - added support for JBoss "destroy()" method in JBossMysqldDynamicMBean.
+             now MySQL will shutdown when JBoss is shutdown.
+             
+2004-09-16 - split lifecycle behavior into subclasses.
+             SimpleMysqldDynamicMBean: (superclass) 
+             |  core functionallity, no lifecycle
+             |
+             +--MysqldDynamicMBean: (for use in any JMX 1.2 container)
+             |  starting is a side-effect of setting the 
+             |  "autostart" attribute to "true"
+             |
+             +--JBossMysqldDynamicMBean: (for use with JBoss only)
+                implements JBoss custom lifecycle methods
+                "create" implemented
+                "destroy" stubbed out
+                                         
+
+1-0-3-alpha
+
+2004-09-10 - added support for "autostart" attribute
+
+1-0-2-alpha
+
+2004-08-31 - swapped out the mysqld binaries for MySQL v4.1.4 gamma
+
+1-0-1-alpha
+
+2004-08-26 - swapped out the mysqld binaries for MySQL v4.1.3 beta
+

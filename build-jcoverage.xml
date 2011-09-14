@@ -1,0 +1,63 @@
+<project name="Code Coverage" default="report" basedir=".">
+
+  <property name="app.name" value="Connector/MXJ"/>
+  <property name="tmp" location="${java.io.tmpdir}/cmxj-build" />
+  <property name="build" location="${tmp}/build" />
+  <property name="stage-root" location="${tmp}/stage" />
+  <property name="stage-cmxj" location="${stage-root}/connector-mxj" />
+
+  <taskdef classpath="/home/java/jcoverage-1.0.5/jcoverage.jar"
+          resource="tasks.properties"/>
+
+  <target name="clean">
+      <delete dir="${build}"/>
+      <delete file="jcoverage.ser"/>
+      <echo message="starting clean in main buildfile" />
+      <ant dir="." target="clean" />
+      <echo message="finished clean in main buildfile" />
+  </target>
+
+  <target name="prepare">
+      <echo message="CREATING DIRECTORIES" />
+      <mkdir dir="${build}"/>
+      <mkdir dir="${build}/instrumented"/>
+      <mkdir dir="${build}/coverage-report"/>
+  </target>
+
+  <target name="compile">
+      <echo message="starting compile in main buildfile"/>
+      <ant dir="." target="dist"/>
+      <echo message="finished compile in main buildfile"/>
+  </target>
+
+  <target name="instrument" depends="compile">
+      <antcall target="prepare" />
+      <instrument todir="${build}/instrumented">
+          <fileset dir="${build}">
+              <include name="**/*.class"/>
+              <exclude name="**/sunri/**"/>
+              <exclude name="**/*Test*"/>
+              <exclude name="**/*Stub*"/>
+          </fileset>
+      </instrument>
+  </target>
+
+  <target name="test" depends="instrument">
+      <junit fork="yes" printsummary="on">
+          <classpath>
+              <pathelement location="${build}/instrumented"/>
+              <pathelement
+                  location="/home/java/jcoverage-1.0.5/jcoverage.jar"/>
+              <pathelement
+                  location="/home/java/jdk/lib/tools.jar"/>
+              <pathelement location="${build}"/>
+          </classpath>
+          <formatter type="brief" usefile="false"/>
+          <test name="com.mysql.management.AllTestsSuite"/>
+      </junit>
+  </target>
+
+  <target name="report" depends="test">
+      <report srcdir="${stage-cmxj}/src" destdir="${build}/coverage-report"/>
+  </target>
+</project>

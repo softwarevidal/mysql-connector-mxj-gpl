@@ -1,0 +1,4 @@
+The command to distinguish between 32 and 64-bit sparc arch. on Solaris is sysdef
+sysdef | grep 64 should show you drv/m64
+isainfo -v will tell you what modes you can run in
+32 bit and or 64 bit
