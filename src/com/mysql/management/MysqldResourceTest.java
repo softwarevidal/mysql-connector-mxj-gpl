@@ -209,16 +209,9 @@ public class MysqldResourceTest extends QuietTestCase {
                 .getMysqldFilePointer()));
     }
 
-    public void testUnknownOs() {
+    public void testUnknownOsShouldSetDefaultOSOrWindowsOS() {
         mysqldResource.setOsAndArch("bogus", "x86");
-        Exception expected = null;
-        try {
-            mysqldResource.makeMysqld();
-        } catch (MissingResourceException e) {
-            expected = e;
-        }
-        assertNotNull("" + mysqldResource.getMysqldFilePointer(), expected);
-        assertTrue(expected.getMessage().indexOf("bogus") > 0);
+        assertEquals("Win-x86", mysqldResource.os_arch());
     }
 
     public void testCreateDbFiles() {

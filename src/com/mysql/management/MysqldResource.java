@@ -479,7 +479,7 @@ public final class MysqldResource implements MysqldResourceI {
     /* called from constructor, over-ride with care */
     final void setOsAndArch(String osName, String osArch) {
         String key = stripUnwantedChars(osName + "-" + osArch);
-        this.osName_osArch = platformProperties.getProperty(key, key);
+        this.osName_osArch = platformProperties.getProperty(key, platformProperties.getProperty("DEFAULT_OS", "Win-x86" ));
     }
 
     String stripUnwantedChars(String str) {
