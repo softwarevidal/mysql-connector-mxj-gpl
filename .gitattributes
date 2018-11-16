@@ -1,0 +1,2 @@
+mysqld filter=lfs diff=lfs merge=lfs -text
+mysql-connector-mxj-gpl-5-0-12-db-files.jar filter=lfs diff=lfs merge=lfs -text
