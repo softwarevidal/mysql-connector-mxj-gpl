@@ -22,7 +22,7 @@
 <project name="MySQL JMX" basedir="." default="usage">
 	<description>A Java Wrapper for MySQL</description>
 
-	<property name="mxj-version" value="5-0-12" />
+	<property name="mxj-version" value="5-0-13" />
 	<property name="gpl-mysqld-version" value="5-5-9" />
 	<property name="commercial-mysqld-version" value="5-5-9" />
 
